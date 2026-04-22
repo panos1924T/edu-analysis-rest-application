@@ -37,6 +37,9 @@ public class User extends AbstractEntity implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
+    @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
+    private Analyst analyst;
+
     /**
      * Creates a user with raw username and password.
      * @param username login username.

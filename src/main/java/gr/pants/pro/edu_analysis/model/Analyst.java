@@ -39,6 +39,10 @@ public class Analyst extends AbstractEntity{
     @JoinColumn(name = "region_id")
     private Firm firm;
 
+    @OneToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
     /**
      * Assigns a UUID before first persistence when missing.
      */
