@@ -24,4 +24,16 @@ public class PersonalInfo extends AbstractEntity{
 
     @Column(name = "municipality_of_registration")
     private String municipalityOfRegistration;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "identity_file_id", unique = true)
+    private Attachment identityFile;
+
+    public void addIdentityFile(Attachment attachment) {
+        this.identityFile = attachment;
+    }
+
+    public void removeIdentityFile() {
+        this.identityFile = null;
+    }
 }
