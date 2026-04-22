@@ -43,6 +43,10 @@ public class Analyst extends AbstractEntity{
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "personal_info_id", unique = true)
+    private PersonalInfo personalInfo;
+
     /**
      * Assigns a UUID before first persistence when missing.
      */

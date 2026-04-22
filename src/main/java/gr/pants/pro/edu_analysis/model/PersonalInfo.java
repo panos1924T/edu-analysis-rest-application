@@ -16,13 +16,13 @@ public class PersonalInfo extends AbstractEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "identity_number", unique = true)
+    @Column(name = "identity_number", unique = true, nullable = false)
     private String identityNumber;
 
-    @Column(name = "place_of_birth")
+    @Column(name = "place_of_birth", nullable = false)
     private String placeOfBirth;
 
-    @Column(name = "municipality_of_registration")
+    @Column(name = "municipality_of_registration", nullable = false)
     private String municipalityOfRegistration;
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
