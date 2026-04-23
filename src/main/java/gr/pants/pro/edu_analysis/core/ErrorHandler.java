@@ -1,6 +1,7 @@
 package gr.pants.pro.edu_analysis.core;
 
-import gr.pants.pro.edu_analysis.core.exceptions.ValidationException;
+import gr.pants.pro.edu_analysis.core.exceptions.*;
+import gr.pants.pro.edu_analysis.dto.ErrorResponseDTO;
 import gr.pants.pro.edu_analysis.dto.ValidationErrorResponseDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -30,5 +31,37 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(new ValidationErrorResponseDTO(
                 e.getCode(), e.getMessage(), errors), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityNotFoundException(EntityNotFoundException e) {
+        log.warn("Entity not found!. Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(EntityAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
+        log.warn("Entity already exists! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(EntityInvalidArgumentException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEntityInvalidArgumentException(EntityInvalidArgumentException e) {
+        log.warn("Invalid argument! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
+    }
+
+    @ExceptionHandler(FileUploadException.class)
+    public ResponseEntity<ErrorResponseDTO> handleFileUploadException(FileUploadException e) {
+        log.warn("File upload failed! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 }
