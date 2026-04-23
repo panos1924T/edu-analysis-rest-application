@@ -3,9 +3,13 @@ package gr.pants.pro.edu_analysis.core;
 import gr.pants.pro.edu_analysis.core.exceptions.*;
 import gr.pants.pro.edu_analysis.dto.ErrorResponseDTO;
 import gr.pants.pro.edu_analysis.dto.ValidationErrorResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -37,7 +41,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleEntityNotFoundException(EntityNotFoundException e) {
         log.warn("Entity not found!. Message={}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
+                .status(HttpStatus.NOT_FOUND)       //404
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
@@ -45,7 +49,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleEntityAlreadyExistsException(EntityAlreadyExistsException e) {
         log.warn("Entity already exists! Message={}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.CONFLICT)
+                .status(HttpStatus.CONFLICT)        //409
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
@@ -53,7 +57,7 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleEntityInvalidArgumentException(EntityInvalidArgumentException e) {
         log.warn("Invalid argument! Message={}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.BAD_REQUEST)     //400
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
 
@@ -61,7 +65,27 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponseDTO> handleFileUploadException(FileUploadException e) {
         log.warn("File upload failed! Message={}", e.getMessage());
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)       //500
                 .body(new ErrorResponseDTO(e.getCode(), e.getMessage()));
     }
+
+    @ExceptionHandler(DataAccessException.class)
+    public ResponseEntity<ErrorResponseDTO> handleDataAccessException(DataAccessException e) {
+        log.warn("Database error! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)       //500
+                .body(new ErrorResponseDTO("DATABASE_ERROR", "A database error occurred"));
+    }
+
+    //Generic Fallback
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception e) {
+        log.warn("Unexpected error! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)       //500
+                .body(new ErrorResponseDTO("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
+    }
+
+    // TODO authentication exception
+    // TODO authorization exception
 }
