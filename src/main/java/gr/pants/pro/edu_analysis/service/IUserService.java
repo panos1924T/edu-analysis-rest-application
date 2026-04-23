@@ -3,6 +3,7 @@ package gr.pants.pro.edu_analysis.service;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityAlreadyExistsException;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityInvalidArgumentException;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityNotFoundException;
+import gr.pants.pro.edu_analysis.core.exceptions.ValidationException;
 import gr.pants.pro.edu_analysis.dto.UserInsertDTO;
 import gr.pants.pro.edu_analysis.dto.UserReadOnlyDTO;
 
