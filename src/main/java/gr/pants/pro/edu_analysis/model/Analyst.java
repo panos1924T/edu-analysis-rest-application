@@ -55,6 +55,11 @@ public class Analyst extends AbstractEntity{
         if (uuid == null) uuid = UUID.randomUUID();
     }
 
+    public void addUser(User user) {
+        this.user = user;
+        user.setAnalyst(this);
+    }
+
     /**
      * Compares analysts by UUID.
      * @param o other object.
