@@ -58,12 +58,38 @@ public class UserService implements IUserService{
     }
 
     @Override
+    @Transactional(readOnly = true)
     public UserReadOnlyDTO getUserByUuid(UUID uuid) throws EntityNotFoundException {
-        return null;
+
+        try {
+
+            User user = userRepository.findByUuid(uuid)
+                    .orElseThrow(() -> new EntityNotFoundException("User", "User with uuid=" + uuid + " not found."));
+            log.debug("User with uuid={} found successfully!", uuid);
+
+            return mapper.toReadOnlyDTO(user);
+
+        } catch (EntityNotFoundException e) {
+            log.error("Get failed! User with uuid={} not found.", uuid);
+            throw e;
+        }
+
     }
 
     @Override
-    public UserReadOnlyDTO getUserByDeletedFalse(UUID uuid) throws EntityNotFoundException {
-        return null;
+    public UserReadOnlyDTO getUserByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException {
+
+        try {
+
+            User user = userRepository.findByUuidAndDeletedFalse(uuid)
+                    .orElseThrow(() -> new EntityNotFoundException("User", "User with uuid=" + uuid + " not found."));
+            log.debug("User with uuid={} found successfully!", uuid);
+
+            return mapper.toReadOnlyDTO(user);
+
+        } catch (EntityNotFoundException e) {
+            log.error("Get failed! User with uuid={} not found.", uuid);
+            throw e;
+        }
     }
 }
