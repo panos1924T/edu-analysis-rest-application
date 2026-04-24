@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -86,6 +87,31 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
     }
 
-    // TODO authentication exception
-    // TODO authorization exception
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e,
+                                                                          HttpServletRequest request) {
+
+        log.warn("Authentication failed for IP={}", request.getRemoteAddr());
+
+        String errorCode = switch (e) {
+            case BadCredentialsException ex  -> "INVALID_CREDENTIALS";
+            case DisabledException ex        -> "ACCOUNT_DISABLED";
+            case LockedException ex          -> "ACCOUNT_LOCKED";
+            case AccountExpiredException ex  -> "ACCOUNT_EXPIRED";
+            case CredentialsExpiredException ex -> "CREDENTIALS_EXPIRED";
+            default                          -> "AUTHENTICATION_ERROR";
+        };
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)        //401
+                .body(new ErrorResponseDTO(errorCode, e.getMessage()));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("Access denied! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorResponseDTO("ACCESS_DENIED", e.getMessage()));
+    }
 }
