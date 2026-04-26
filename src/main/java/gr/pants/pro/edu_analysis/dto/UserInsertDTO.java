@@ -15,7 +15,7 @@ public record UserInsertDTO(
         @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])^.{8,}$")
         String password,
 
-        @NotBlank
+        @NotNull
         Long roleId
 ) {
 }
