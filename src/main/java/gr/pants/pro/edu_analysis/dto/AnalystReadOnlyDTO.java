@@ -11,8 +11,6 @@ public record AnalystReadOnlyDTO(
 
         String email,
 
-        Long firmId,
-
-        PersonalInfoReadOnlyDTO personalInfoReadOnlyDTO
+        String firm
 ) {
 }
