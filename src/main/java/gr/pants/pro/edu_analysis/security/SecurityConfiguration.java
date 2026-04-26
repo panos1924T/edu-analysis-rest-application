@@ -49,10 +49,11 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationProvider authenticationProvider)
             throws Exception {
         http
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
+                .cors(httpSecurityCorsConfigurer ->
+                        httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
-                                .requestMatchers(HttpMethod.POST, "/api/v1/teachers").permitAll()           // register
+                                .requestMatchers(HttpMethod.POST, "/api/v1/analysts").permitAll()           // register
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/authenticate").permitAll()
                                 .requestMatchers("/api/v1/eligible/**").permitAll()
@@ -67,7 +68,7 @@ public class SecurityConfiguration {
 //                        .requestMatchers(HttpMethod.GET, "/api/v1/teachers/{uuid}").hasAnyAuthority("VIEW_TEACHER", "VIEW_ONLY_TEACHER")
 //                                .requestMatchers(HttpMethod.GET, "/api/v1/teachers/*").permitAll()
 //                                .requestMatchers(HttpMethod.POST, "/api/v1/teachers/{uuid}/*").permitAll()
-//                                .requestMatchers(HttpMethod.GET, "/api/v1/users/*").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/users/*").hasAuthority("VIEW_USER")
 //                                .requestMatchers(HttpMethod.PUT, "/api/v1/teachers/{uuid}").hasAuthority("EDIT_TEACHER")
 //                                .requestMatchers(HttpMethod.PATCH, "/api/v1/teachers/{uuid}").hasAuthority("DELETE_TEACHER")
 

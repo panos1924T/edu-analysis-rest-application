@@ -12,6 +12,7 @@ import gr.pants.pro.edu_analysis.repository.RoleRepository;
 import gr.pants.pro.edu_analysis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +58,7 @@ public class UserService implements IUserService{
         }
     }
 
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     @Override
     @Transactional(readOnly = true)
     public UserReadOnlyDTO getUserByUuid(UUID uuid) throws EntityNotFoundException {
@@ -76,6 +78,7 @@ public class UserService implements IUserService{
 
     }
 
+    @PreAuthorize("hasAuthority('VIEW_USER')")
     @Override
     @Transactional(readOnly = true)
     public UserReadOnlyDTO getUserByUuidDeletedFalse(UUID uuid) throws EntityNotFoundException {
