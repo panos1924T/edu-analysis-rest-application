@@ -9,7 +9,7 @@ import lombok.Setter;
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter
-@Table(name = "personal_info")
+@Table(name = "personal_information")
 public class PersonalInfo extends AbstractEntity{
 
     @Id

@@ -36,7 +36,7 @@ public class Analyst extends AbstractEntity{
     private String email;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "region_id")
+    @JoinColumn(name = "firm_id")
     private Firm firm;
 
     @OneToOne(cascade = CascadeType.PERSIST)

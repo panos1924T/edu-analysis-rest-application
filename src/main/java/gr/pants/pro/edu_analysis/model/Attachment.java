@@ -17,7 +17,7 @@ public class Attachment extends AbstractEntity{
     private Long id;
 
     @Column(nullable = false)
-    private String fileName;
+    private String filename;
 
     @Column(name = "saved_name", nullable = false, unique = true)
     private String savedName;
