@@ -1,6 +1,7 @@
 package gr.pants.pro.edu_analysis.api;
 
 import gr.pants.pro.edu_analysis.core.exceptions.*;
+import gr.pants.pro.edu_analysis.core.filters.AnalystFilters;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystUpdateDTO;
@@ -8,6 +9,9 @@ import gr.pants.pro.edu_analysis.service.IAnalystSevice;
 import gr.pants.pro.edu_analysis.validator.AnalystInsertValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -77,5 +81,24 @@ public class AnalystRestController {
 
         AnalystReadOnlyDTO analystReadOnlyDTO0 = analystSevice.updateAnalyst(updateDTO);
         return ResponseEntity.ok(analystReadOnlyDTO0);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<AnalystReadOnlyDTO>> getFilteredAndPaginatedAnalysts(
+            @PageableDefault(page = 0, size = 5)Pageable pageable,
+            @ModelAttribute AnalystFilters filters
+            ) throws EntityNotFoundException {
+
+        Page<AnalystReadOnlyDTO> paginatedDTO = analystSevice.getPaginatedAnalystsFiltered(pageable, filters);
+        return ResponseEntity.ok(paginatedDTO);
+    }
+
+    @GetMapping("/{uuid}")
+    public ResponseEntity<AnalystReadOnlyDTO> getAnalystByUuid(
+            @PathVariable UUID uuid
+    ) throws EntityNotFoundException {
+
+        AnalystReadOnlyDTO analystReadOnlyDTO = analystSevice.getAnalystByUuidAndDeletedFalse(uuid);
+        return ResponseEntity.ok(analystReadOnlyDTO);
     }
 }

@@ -31,6 +31,9 @@ public interface IAnalystSevice {
     AnalystReadOnlyDTO getAnalystByUuid(UUID uuid)
             throws EntityNotFoundException;
 
+    AnalystReadOnlyDTO getAnalystByUuidAndDeletedFalse(UUID uuid)
+            throws EntityNotFoundException;
+
     Page<AnalystReadOnlyDTO> getPaginatedAnalysts(Pageable pageable);
     Page<AnalystReadOnlyDTO> getPaginatedAnalystsByDeletedFalse(Pageable pageable);
     Page<AnalystReadOnlyDTO> getPaginatedAnalystsFiltered(Pageable pageable, AnalystFilters filters)

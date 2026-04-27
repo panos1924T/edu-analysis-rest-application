@@ -234,6 +234,22 @@ public class AnalystService implements IAnalystSevice{
     }
 
     @Override
+    @PreAuthorize("hasAuthority('EDIT_ANALYST') or (hasAuthority('VIEW_ONLY_ANALYST') and @securityService.isOwnAnalystProfile(#uuid, authentication))")
+    @Transactional(readOnly = true)
+    public AnalystReadOnlyDTO getAnalystByUuidAndDeletedFalse(UUID uuid) throws EntityNotFoundException {
+
+        try {
+            Analyst analyst = analystRepository.findByUuidAndDeletedFalse(uuid)
+                    .orElseThrow(() -> new EntityNotFoundException("Analyst", "Analyst with uuid=" + uuid + " not found."));
+            log.debug("Get non-deleted analyst by uuid={} returned successfully.", uuid);
+            return mapper.toAnalystReadOnlyDTO(analyst);
+        } catch (EntityNotFoundException e) {
+            log.error("Get analyst by uuid={} failed.", uuid);
+            throw e;
+        }
+    }
+
+    @Override
     public Page<AnalystReadOnlyDTO> getPaginatedAnalysts(Pageable pageable) {
         return null;
     }
