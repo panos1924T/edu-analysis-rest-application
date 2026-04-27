@@ -1,8 +1,6 @@
 package gr.pants.pro.edu_analysis.api;
 
-import gr.pants.pro.edu_analysis.core.exceptions.EntityAlreadyExistsException;
-import gr.pants.pro.edu_analysis.core.exceptions.EntityInvalidArgumentException;
-import gr.pants.pro.edu_analysis.core.exceptions.ValidationException;
+import gr.pants.pro.edu_analysis.core.exceptions.*;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
 import gr.pants.pro.edu_analysis.service.IAnalystSevice;
@@ -11,12 +9,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/analysts")
@@ -26,6 +24,7 @@ public class AnalystRestController {
     private final IAnalystSevice analystSevice;
     private final AnalystInsertValidator analystInsertValidator;
 
+    @PostMapping
     public ResponseEntity<AnalystReadOnlyDTO> saveAnalyst(
             @Valid @RequestBody AnalystInsertDTO insertDTO,
             BindingResult bindingResult)
@@ -47,5 +46,18 @@ public class AnalystRestController {
         return ResponseEntity
                 .created(location)
                 .body(readOnlyDTO);
+    }
+
+    @PostMapping("/{uuid}/identity-file")
+    public ResponseEntity<Void> uploadIdentityFile(
+            @PathVariable UUID uuid,
+            @RequestParam("identityFile") MultipartFile identityFile
+            ) throws EntityNotFoundException, FileUploadException {
+
+        analystSevice.saveIdentityNumberFile(uuid, identityFile);
+        return ResponseEntity
+                .noContent()
+                .build();
+
     }
 }
