@@ -66,7 +66,7 @@ public class SecurityConfiguration {
                                         "/configuration/**"        // Swagger configuration endpoints
                                 ).permitAll()
 //                        .requestMatchers(HttpMethod.GET, "/api/v1/teachers/{uuid}").hasAnyAuthority("VIEW_TEACHER", "VIEW_ONLY_TEACHER")
-//                                .requestMatchers(HttpMethod.GET, "/api/v1/teachers/*").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").permitAll()
 //                                .requestMatchers(HttpMethod.POST, "/api/v1/teachers/{uuid}/*").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/api/v1/users/*").hasAuthority("VIEW_USER")
 //                                .requestMatchers(HttpMethod.PUT, "/api/v1/teachers/{uuid}").hasAuthority("EDIT_TEACHER")
