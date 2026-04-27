@@ -4,6 +4,7 @@ import gr.pants.pro.edu_analysis.core.exceptions.EntityAlreadyExistsException;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityInvalidArgumentException;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityNotFoundException;
 import gr.pants.pro.edu_analysis.core.exceptions.FileUploadException;
+import gr.pants.pro.edu_analysis.core.filters.AnalystFilters;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystUpdateDTO;
@@ -11,11 +12,13 @@ import gr.pants.pro.edu_analysis.mapper.Mapper;
 import gr.pants.pro.edu_analysis.model.*;
 import gr.pants.pro.edu_analysis.model.static_data.Firm;
 import gr.pants.pro.edu_analysis.repository.*;
+import gr.pants.pro.edu_analysis.specification.AnalystSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -249,5 +253,48 @@ public class AnalystService implements IAnalystSevice{
     @Transactional(readOnly = true)
     public boolean isAnalystExistsByEmail(String email) {
         return analystRepository.findByEmail(email).isPresent();
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('VIEW_ANALYSTS')")
+    @Transactional(readOnly = true)
+    public Page<AnalystReadOnlyDTO> getPaginatedAnalystsFiltered(Pageable pageable, AnalystFilters filters)
+            throws EntityNotFoundException {
+        try {
+            if (filters.getUuid() != null) {
+                Analyst analyst = analystRepository.findByUuid(filters.getUuid())
+                        .orElseThrow(() -> new EntityNotFoundException("Analyst", "uuid=" + filters.getUuid() + " not found"));
+                return singleResultPage(analyst, pageable);
+            }
+
+            if (filters.getEmail() != null) {
+                Analyst analyst = analystRepository.findByEmail(filters.getEmail())
+                        .orElseThrow(() -> new EntityNotFoundException("Analyst", "email=" + filters.getEmail() + " not found"));
+                return singleResultPage(analyst, pageable);
+            }
+
+            if (filters.getEmail() != null) {
+                Analyst analyst = analystRepository.findByPersonalInfo_IdentityNumber(filters.getIdentityNumber())
+                        .orElseThrow(() -> new EntityNotFoundException("Analyst", "identity-number=" + filters.getIdentityNumber() + " not found"));
+                return singleResultPage(analyst, pageable);
+            }
+
+            var filtered = analystRepository.findAll(AnalystSpecification.build(filters), pageable);
+
+            log.debug("Filtered and paginated analysts were returned successfully with page={} and size={}", pageable.getPageNumber(),
+                    pageable.getPageSize());
+            return filtered.map(mapper::toAnalystReadOnlyDTO);
+        } catch (EntityNotFoundException e) {
+            log.error("Filtered and paginated analysts were not found", e);
+            throw e;
+        }
+    }
+
+    private Page<AnalystReadOnlyDTO> singleResultPage(Analyst analyst, Pageable pageable) {
+        return new PageImpl<>(
+                List.of(mapper.toAnalystReadOnlyDTO(analyst)),
+                pageable,
+                1
+        );
     }
 }

@@ -4,6 +4,7 @@ import gr.pants.pro.edu_analysis.core.exceptions.EntityAlreadyExistsException;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityInvalidArgumentException;
 import gr.pants.pro.edu_analysis.core.exceptions.EntityNotFoundException;
 import gr.pants.pro.edu_analysis.core.exceptions.FileUploadException;
+import gr.pants.pro.edu_analysis.core.filters.AnalystFilters;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystUpdateDTO;
@@ -32,6 +33,8 @@ public interface IAnalystSevice {
 
     Page<AnalystReadOnlyDTO> getPaginatedAnalysts(Pageable pageable);
     Page<AnalystReadOnlyDTO> getPaginatedAnalystsByDeletedFalse(Pageable pageable);
+    Page<AnalystReadOnlyDTO> getPaginatedAnalystsFiltered(Pageable pageable, AnalystFilters filters)
+            throws EntityNotFoundException;
 
     boolean isAnalystExists(UUID uuid);
     boolean isAnalystExistsByEmail(String email);
