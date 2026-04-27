@@ -3,6 +3,7 @@ package gr.pants.pro.edu_analysis.api;
 import gr.pants.pro.edu_analysis.core.exceptions.*;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
+import gr.pants.pro.edu_analysis.dto.AnalystUpdateDTO;
 import gr.pants.pro.edu_analysis.service.IAnalystSevice;
 import gr.pants.pro.edu_analysis.validator.AnalystInsertValidator;
 import jakarta.validation.Valid;
@@ -59,5 +60,22 @@ public class AnalystRestController {
                 .noContent()
                 .build();
 
+    }
+
+    @PutMapping("/{uuid}")
+    public ResponseEntity<AnalystReadOnlyDTO> updateAnalyst(
+            @PathVariable UUID uuid,
+            @Valid @RequestBody AnalystUpdateDTO updateDTO,
+            BindingResult bindingResult)
+            throws EntityNotFoundException, EntityInvalidArgumentException, EntityAlreadyExistsException, ValidationException {
+
+        //analystUpdateValidator.validate(analystUpdateValidator, bindingResult);
+
+        if (bindingResult.hasErrors()) {
+            throw new ValidationException("Analyst", "Invalid analyst data", bindingResult);
+        }
+
+        AnalystReadOnlyDTO analystReadOnlyDTO0 = analystSevice.updateAnalyst(updateDTO);
+        return ResponseEntity.ok(analystReadOnlyDTO0);
     }
 }

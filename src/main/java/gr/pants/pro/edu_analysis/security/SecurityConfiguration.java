@@ -57,6 +57,9 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.POST, "/api/v1/users").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/authenticate").permitAll()
                                 .requestMatchers("/api/v1/eligible/**").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/v1/analysts/{uuid}/*").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").permitAll()
                                 .requestMatchers(
                                         "/swagger-ui.html",        // The old Swagger UI HTML (if used)
                                         "/swagger-ui/**",          // All Swagger UI resources (JS, CSS, etc.)
@@ -65,17 +68,16 @@ public class SecurityConfiguration {
                                         "/swagger-resources/**",   // Swagger resource descriptors
                                         "/configuration/**"        // Swagger configuration endpoints
                                 ).permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/api/v1/teachers/{uuid}").hasAnyAuthority("VIEW_TEACHER", "VIEW_ONLY_TEACHER")
-                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/v1/analysts/{uuid}/*").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/v1/users/*").hasAuthority("VIEW_USER")
-//                                .requestMatchers(HttpMethod.PUT, "/api/v1/teachers/{uuid}").hasAuthority("EDIT_TEACHER")
-//                                .requestMatchers(HttpMethod.PATCH, "/api/v1/teachers/{uuid}").hasAuthority("DELETE_TEACHER")
 
-//                                .requestMatchers(HttpMethod.GET, "/api/v1/teachers").hasAuthority("VIEW_TEACHERS")
-//                                .requestMatchers(HttpMethod.GET, "/api/v1/teachers/*").hasAnyAuthority("VIEW_TEACHER", "VIEW_ONLY_TEACHER")
-//                                .requestMatchers(HttpMethod.GET, "/api/v1/teachers/*").permitAll()
-//                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/{uuid}").hasAnyAuthority("VIEW_ANALYST", "VIEW_ONLY_ANALYST")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/users/*").hasAuthority("VIEW_USER")
+                                .requestMatchers(HttpMethod.PUT, "/api/v1/analysts/{uuid}").hasAuthority("EDIT_ANALYST")
+                                .requestMatchers(HttpMethod.PATCH, "/api/v1/analysts/{uuid}").hasAuthority("DELETE_ANALYST")
+
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts").hasAuthority("VIEW_TEACHERS")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").hasAnyAuthority("VIEW_TEACHER", "VIEW_ONLY_TEACHER")
+
+                        .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
