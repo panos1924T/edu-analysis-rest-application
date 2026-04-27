@@ -7,19 +7,27 @@ import gr.pants.pro.edu_analysis.core.exceptions.FileUploadException;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
 import gr.pants.pro.edu_analysis.mapper.Mapper;
-import gr.pants.pro.edu_analysis.model.Analyst;
-import gr.pants.pro.edu_analysis.model.Role;
-import gr.pants.pro.edu_analysis.model.User;
+import gr.pants.pro.edu_analysis.model.*;
 import gr.pants.pro.edu_analysis.model.static_data.Firm;
 import gr.pants.pro.edu_analysis.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tika.Tika;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
@@ -35,7 +43,11 @@ public class AnalystService implements IAnalystSevice{
     private final Mapper mapper;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${file.upload.dir}")
+    private String uploadDir;
+
     @Override
+    @Transactional(rollbackFor = {EntityInvalidArgumentException.class, EntityAlreadyExistsException.class})
     public AnalystReadOnlyDTO saveAnalyst(AnalystInsertDTO insertDTO)
             throws EntityAlreadyExistsException, EntityInvalidArgumentException {
 
@@ -81,10 +93,64 @@ public class AnalystService implements IAnalystSevice{
     }
 
     @Override
-    public void saveIdentityNumberFile(UUID uuid, MultipartFile identityNumberFile)
+    @Retryable(
+            retryFor = { IOException.class, HttpServerErrorException.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 2000, multiplier = 2, maxDelay = 10000)
+    )
+    @Transactional(rollbackFor = EntityNotFoundException.class)
+    public void saveIdentityNumberFile(UUID uuid, MultipartFile identityFile)
             throws FileUploadException, EntityNotFoundException {
+        try {
+            String originalFilename = identityFile.getOriginalFilename();
+            String savedName = UUID.randomUUID() + getFileExtension(originalFilename);
 
+            String uploadDirectory = uploadDir;
+            Path filePath = Paths.get(uploadDirectory + savedName);
+
+            Files.createDirectories(filePath.getParent());
+            //        Files.write(filePath, amkaFile.getBytes());
+            identityFile.transferTo(filePath);  // safe for large files, more efficient
+
+            Attachment attachment = new Attachment();
+            attachment.setFilename(originalFilename);
+            attachment.setSavedName(savedName);
+            attachment.setFilePath(filePath.toString());
+
+            Tika tika = new Tika();
+            String contentType = tika.detect(identityFile.getBytes());
+            attachment.setContentType(contentType);
+            attachment.setExtension(getFileExtension(originalFilename));
+
+            Analyst analyst = analystRepository.findByUuid(uuid).orElseThrow(()
+                    -> new EntityNotFoundException("Analyst", "Analyst with uuid=" + uuid + " not found."));
+
+            PersonalInfo personalInfo = analyst.getPersonalInfo();
+
+            if (personalInfo.getIdentityFile() != null) {
+                Files.deleteIfExists(Path.of(personalInfo.getIdentityFile().getFilePath()));
+                personalInfo.removeIdentityFile();  // orphanRemoval handles DB deletion
+            }
+
+            personalInfo.addIdentityFile(attachment);
+            analystRepository.save(analyst);
+            log.info("Attachment for analyst with identity number={} saved", personalInfo.getIdentityNumber());
+        } catch (EntityNotFoundException e) {
+            log.error("Attachment for analyst with uuid={} not found", uuid, e);
+            throw e;
+        } catch (IOException | HttpServerErrorException e) {
+            log.error("Error saving attachment for analyst with uuid={}", uuid, e);
+            throw new FileUploadException("File", "Error saving attachment for analyst with identity number=" + uuid);
+        }
     }
+
+    private String getFileExtension(String filename) {
+        if (filename != null && filename.contains(".")) {
+            return filename.substring(filename.lastIndexOf("."));
+        }
+        return "";
+    }
+
 
     @Override
     public AnalystReadOnlyDTO deleteAnalystByUuid(UUID uuid)

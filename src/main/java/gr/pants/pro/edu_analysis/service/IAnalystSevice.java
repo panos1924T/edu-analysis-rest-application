@@ -17,7 +17,7 @@ public interface IAnalystSevice {
     AnalystReadOnlyDTO saveAnalyst(AnalystInsertDTO insertDTO)
             throws EntityAlreadyExistsException, EntityInvalidArgumentException;
 
-    void saveIdentityNumberFile(UUID uuid, MultipartFile identityNumberFile)
+    void saveIdentityNumberFile(UUID uuid, MultipartFile identityFile)
             throws FileUploadException, EntityNotFoundException;
 
 //    AnalystReadOnlyDTO updateAnalyst(AnalystUpdateDTO updateDTO)
