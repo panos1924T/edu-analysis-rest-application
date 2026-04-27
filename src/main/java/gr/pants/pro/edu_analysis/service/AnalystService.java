@@ -6,6 +6,7 @@ import gr.pants.pro.edu_analysis.core.exceptions.EntityNotFoundException;
 import gr.pants.pro.edu_analysis.core.exceptions.FileUploadException;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
+import gr.pants.pro.edu_analysis.dto.AnalystUpdateDTO;
 import gr.pants.pro.edu_analysis.mapper.Mapper;
 import gr.pants.pro.edu_analysis.model.*;
 import gr.pants.pro.edu_analysis.model.static_data.Firm;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -87,6 +90,68 @@ public class AnalystService implements IAnalystSevice{
             throw e;
         } catch (EntityInvalidArgumentException e) {
             log.error("Invalid argument for Analyst with email={} and Firm id={}. Save failed.", insertDTO.email(), insertDTO.firmId(), e);
+            throw e;
+        }
+
+    }
+
+    @Override
+    @PreAuthorize("hasAuthority('EDIT_TEACHER')")
+    @Transactional(rollbackFor = {EntityAlreadyExistsException.class, EntityInvalidArgumentException.class, EntityNotFoundException.class})
+    public AnalystReadOnlyDTO updateAnalyst(AnalystUpdateDTO updateDTO)
+            throws EntityAlreadyExistsException, EntityInvalidArgumentException, EntityNotFoundException {
+
+        try {
+
+            Analyst analyst = analystRepository.findByUuid(updateDTO.uuid())
+                    .orElseThrow(() -> new EntityNotFoundException("Analyst", "Analyst with uuid=" + updateDTO.uuid() + " not found."));
+
+            analyst.setFirstname(updateDTO.firstname());
+            analyst.setLastname(updateDTO.lastname());
+
+            if (!analyst.getEmail().equals(updateDTO.email())) {
+                if (analystRepository.findByEmail(updateDTO.email()).isPresent()) {
+                    throw new EntityAlreadyExistsException("Analyst", "An Analyst with email=" + updateDTO.email() + " already exists");
+                }
+                analyst.setEmail(updateDTO.email());
+            }
+
+            if (!analyst.getPersonalInfo().getIdentityNumber().equals(updateDTO.personalInfoUpdateDTO().identityNumber()) &&
+                personalInfoRepository.findByIdentityNumber(updateDTO.personalInfoUpdateDTO().identityNumber()).isPresent()) {
+                throw new EntityAlreadyExistsException("Analyst", "An Analyst with identity number=" + updateDTO.personalInfoUpdateDTO().identityNumber() + " already exists");
+            }
+            analyst.getPersonalInfo().setIdentityNumber(updateDTO.personalInfoUpdateDTO().identityNumber());
+            analyst.getPersonalInfo().setPlaceOfBirth(updateDTO.personalInfoUpdateDTO().placeOfBirth());
+            analyst.getPersonalInfo().setMunicipalityOfRegistration(updateDTO.personalInfoUpdateDTO().municipalityOfRegistration());
+
+            if (!Objects.equals(updateDTO.firmId(), analyst.getFirm().getId())) {
+                Firm firm = firmRepository.findById(updateDTO.firmId())
+                        .orElseThrow(() -> new EntityInvalidArgumentException("Firm", "Firm with id=" + updateDTO.firmId() + " invalid."));
+                Firm oldFirm = analyst.getFirm();
+                if (oldFirm != null) {
+                    oldFirm.removeAnalyst(analyst);
+                }
+                firm.addAnalyst(analyst);
+            }
+
+            if (!analyst.getUser().getUsername().equals(updateDTO.userUpdateDTO().username())) {
+                if (userRepository.findByUsername(updateDTO.userUpdateDTO().username()).isPresent()) {
+                    throw new EntityAlreadyExistsException("User", "A user with username=" + updateDTO.userUpdateDTO().username() + " already exists");
+                }
+            }
+            analyst.getUser().setUsername(updateDTO.userUpdateDTO().username());
+            analyst.getUser().setPassword(passwordEncoder.encode(updateDTO.userUpdateDTO().password()));
+
+            log.info("Analyst with uuid={} updated successfully.", updateDTO.uuid());
+            return mapper.toAnalystReadOnlyDTO(analyst);
+        } catch (EntityNotFoundException e) {
+            log.error("Update failed for analyst with uuid={}. Analyst not found", updateDTO.uuid(), e);
+            throw e;
+        } catch (EntityAlreadyExistsException e) {
+            log.error("Update failed for analyst with uuid={}. Analyst with email={} already exists", updateDTO.uuid(), updateDTO.email(), e);
+            throw e;
+        } catch (EntityInvalidArgumentException e) {
+            log.error("Update failed for analyst with uuid={}. Firm id={} is invalid", updateDTO.uuid(), updateDTO.firmId(), e);
             throw e;
         }
 

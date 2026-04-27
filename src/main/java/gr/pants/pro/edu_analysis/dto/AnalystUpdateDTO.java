@@ -27,10 +27,10 @@ public record AnalystUpdateDTO(
 
         @Valid
         @NotNull
-        UserInsertDTO userInsertDTO,
+        UserUpdateDTO userUpdateDTO,
 
         @Valid
         @NotNull
-        PersonalInfoInsertDTO personalInfoInsertDTO
+        PersonalInfoUpdateDTO personalInfoUpdateDTO
 ) {
 }

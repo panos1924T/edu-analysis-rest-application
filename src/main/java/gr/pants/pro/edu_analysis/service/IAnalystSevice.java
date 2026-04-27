@@ -6,6 +6,7 @@ import gr.pants.pro.edu_analysis.core.exceptions.EntityNotFoundException;
 import gr.pants.pro.edu_analysis.core.exceptions.FileUploadException;
 import gr.pants.pro.edu_analysis.dto.AnalystInsertDTO;
 import gr.pants.pro.edu_analysis.dto.AnalystReadOnlyDTO;
+import gr.pants.pro.edu_analysis.dto.AnalystUpdateDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,8 +21,8 @@ public interface IAnalystSevice {
     void saveIdentityNumberFile(UUID uuid, MultipartFile identityFile)
             throws FileUploadException, EntityNotFoundException;
 
-//    AnalystReadOnlyDTO updateAnalyst(AnalystUpdateDTO updateDTO)
-//            throws EntityAlreadyExistsException, EntityInvalidArgumentException;
+    AnalystReadOnlyDTO updateAnalyst(AnalystUpdateDTO updateDTO)
+            throws EntityAlreadyExistsException, EntityInvalidArgumentException, EntityNotFoundException;
 
     AnalystReadOnlyDTO deleteAnalystByUuid(UUID uuid)
             throws EntityNotFoundException;
