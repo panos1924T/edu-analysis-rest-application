@@ -175,7 +175,14 @@ public class AnalystService implements IAnalystSevice{
     }
 
     @Override
-    public Boolean isAnalystExists(UUID uuid) {
-        return null;
+    @Transactional(readOnly = true)
+    public boolean isAnalystExists(UUID uuid) {
+        return analystRepository.findByUuid(uuid).isPresent();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isAnalystExistsByEmail(String email) {
+        return analystRepository.findByEmail(email).isPresent();
     }
 }

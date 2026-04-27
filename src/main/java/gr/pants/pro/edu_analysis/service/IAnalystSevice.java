@@ -32,5 +32,6 @@ public interface IAnalystSevice {
     Page<AnalystReadOnlyDTO> getPaginatedAnalysts(Pageable pageable);
     Page<AnalystReadOnlyDTO> getPaginatedAnalystsByDeletedFalse(Pageable pageable);
 
-    Boolean isAnalystExists(UUID uuid);
+    boolean isAnalystExists(UUID uuid);
+    boolean isAnalystExistsByEmail(String email);
 }
