@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +115,7 @@ public class UserRestController {
             )
     })
     @GetMapping("/{uuid}")
+    @SecurityRequirement(name = "Bearer Authentication")
     public ResponseEntity<UserReadOnlyDTO> getUserByUuid(@PathVariable UUID uuid)
             throws EntityNotFoundException {
 
