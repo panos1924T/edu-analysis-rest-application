@@ -24,4 +24,5 @@ public interface AnalystRepository extends JpaRepository<Analyst, Long>,
     @EntityGraph(attributePaths = {"personalInfo", "firm"})
     Page<Analyst> findByDeletedFalse(Pageable pageable);
 
+    boolean existsByUuidAndUser_Uuid(UUID analystUuid, UUID userUuid);
 }
