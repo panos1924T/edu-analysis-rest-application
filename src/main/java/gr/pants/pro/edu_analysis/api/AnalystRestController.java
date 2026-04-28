@@ -4,6 +4,7 @@ import gr.pants.pro.edu_analysis.core.exceptions.*;
 import gr.pants.pro.edu_analysis.core.filters.AnalystFilters;
 import gr.pants.pro.edu_analysis.dto.*;
 import gr.pants.pro.edu_analysis.service.IAnalystSevice;
+import gr.pants.pro.edu_analysis.validator.AnalystEditValidator;
 import gr.pants.pro.edu_analysis.validator.AnalystInsertValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,6 +33,7 @@ public class AnalystRestController {
 
     private final IAnalystSevice analystSevice;
     private final AnalystInsertValidator analystInsertValidator;
+    private final AnalystEditValidator analystEditValidator;
 
     @Operation(
             summary = "Save an analyst",
@@ -156,8 +158,7 @@ public class AnalystRestController {
             BindingResult bindingResult)
             throws EntityNotFoundException, EntityInvalidArgumentException, EntityAlreadyExistsException, ValidationException {
 
-        //analystUpdateValidator.validate(analystUpdateValidator, bindingResult);
-
+        analystEditValidator.validate(analystEditValidator, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new ValidationException("Analyst", "Invalid analyst data", bindingResult);
         }
