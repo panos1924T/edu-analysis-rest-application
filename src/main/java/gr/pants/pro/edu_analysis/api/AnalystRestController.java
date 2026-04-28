@@ -101,4 +101,13 @@ public class AnalystRestController {
         AnalystReadOnlyDTO analystReadOnlyDTO = analystSevice.getAnalystByUuidAndDeletedFalse(uuid);
         return ResponseEntity.ok(analystReadOnlyDTO);
     }
+
+    @DeleteMapping("/{uuid}")
+    public ResponseEntity<AnalystReadOnlyDTO> deleteAnalyst(
+            @PathVariable UUID uuid)
+            throws EntityNotFoundException {
+
+        AnalystReadOnlyDTO analystReadOnlyDTO = analystSevice.deleteAnalystByUuid(uuid);
+        return ResponseEntity.ok(analystReadOnlyDTO);
+    }
 }
