@@ -9,6 +9,7 @@ import gr.pants.pro.edu_analysis.dto.UserInsertDTO;
 import gr.pants.pro.edu_analysis.dto.UserReadOnlyDTO;
 import gr.pants.pro.edu_analysis.dto.ValidationErrorResponseDTO;
 import gr.pants.pro.edu_analysis.service.IUserService;
+import gr.pants.pro.edu_analysis.validator.UserInsertValidator;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,6 +32,7 @@ import java.util.UUID;
 public class UserRestController {
 
     private final IUserService userService;
+    private final UserInsertValidator userInsertValidator;
 
     @Operation(
             summary = "Register a new user",
@@ -75,6 +77,7 @@ public class UserRestController {
                                                         BindingResult bindingResult)
             throws ValidationException, EntityAlreadyExistsException, EntityInvalidArgumentException {
 
+        userInsertValidator.validate(userInsertDTO, bindingResult);
         if (bindingResult.hasErrors()) {
             throw new ValidationException("User", "Invalid user data", bindingResult);
         }
