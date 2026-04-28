@@ -222,9 +222,26 @@ public class AnalystService implements IAnalystSevice{
 
 
     @Override
+    @PreAuthorize("hasAuthority('DELETE_ANALYST')")
+    @Transactional(rollbackFor = EntityNotFoundException.class)
     public AnalystReadOnlyDTO deleteAnalystByUuid(UUID uuid)
             throws EntityNotFoundException {
-        return null;
+
+
+        try {
+            Analyst analyst = analystRepository.findByUuidAndDeletedFalse(uuid)
+                    .orElseThrow(() -> new EntityNotFoundException("Analyst", "Analyst with uuid=" + uuid + " not found."));
+
+            analyst.softDelete();
+            analyst.getPersonalInfo().softDelete();
+            analyst.getUser().softDelete();
+
+            log.info("Analyst with uuid={} deleted successfully", uuid);
+            return mapper.toAnalystReadOnlyDTO(analyst);
+        } catch (EntityNotFoundException e) {
+            log.error("Deletion failed for analyst with uuid={}. Analyst not found.", uuid);
+            throw e;
+        }
     }
 
     @Override
