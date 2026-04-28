@@ -15,8 +15,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.security.access.AccessDeniedException;
 
-import java.nio.file.AccessDeniedException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -78,15 +78,6 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
                 .body(new ErrorResponseDTO("DATABASE_ERROR", "A database error occurred"));
     }
 
-    //Generic Fallback
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception e) {
-        log.warn("Unexpected error! Message={}", e.getMessage());
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)       //500
-                .body(new ErrorResponseDTO("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
-    }
-
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponseDTO> handleAuthenticationException(AuthenticationException e,
                                                                           HttpServletRequest request) {
@@ -113,5 +104,14 @@ public class ErrorHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(new ErrorResponseDTO("ACCESS_DENIED", e.getMessage()));
+    }
+
+    //Generic Fallback
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception e) {
+        log.warn("Unexpected error! Message={}", e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)       //500
+                .body(new ErrorResponseDTO("INTERNAL_SERVER_ERROR", "An unexpected error occurred"));
     }
 }

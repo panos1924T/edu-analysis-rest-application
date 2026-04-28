@@ -234,7 +234,7 @@ public class AnalystService implements IAnalystSevice{
     }
 
     @Override
-    @PreAuthorize("hasAuthority('EDIT_ANALYST') or (hasAuthority('VIEW_ONLY_ANALYST') and @securityService.isOwnAnalystProfile(#uuid, authentication))")
+    @PreAuthorize("hasAuthority('VIEW_ANALYST') or (hasAuthority('VIEW_ONLY_ANALYST') and @securityService.isOwnAnalystProfile(#uuid, authentication))")
     @Transactional(readOnly = true)
     public AnalystReadOnlyDTO getAnalystByUuidAndDeletedFalse(UUID uuid) throws EntityNotFoundException {
 
@@ -289,7 +289,7 @@ public class AnalystService implements IAnalystSevice{
                 return singleResultPage(analyst, pageable);
             }
 
-            if (filters.getEmail() != null) {
+            if (filters.getIdentityNumber() != null) {
                 Analyst analyst = analystRepository.findByPersonalInfo_IdentityNumber(filters.getIdentityNumber())
                         .orElseThrow(() -> new EntityNotFoundException("Analyst", "identity-number=" + filters.getIdentityNumber() + " not found"));
                 return singleResultPage(analyst, pageable);
