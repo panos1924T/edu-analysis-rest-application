@@ -74,8 +74,8 @@ public class SecurityConfiguration {
                                 .requestMatchers(HttpMethod.PUT, "/api/v1/analysts/{uuid}").hasAuthority("EDIT_ANALYST")
                                 .requestMatchers(HttpMethod.PATCH, "/api/v1/analysts/{uuid}").hasAuthority("DELETE_ANALYST")
 
-                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts").hasAuthority("VIEW_TEACHERS")
-                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").hasAnyAuthority("VIEW_TEACHER", "VIEW_ONLY_TEACHER")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts").hasAuthority("VIEW_ANALYSTS")
+                                .requestMatchers(HttpMethod.GET, "/api/v1/analysts/*").hasAnyAuthority("VIEW_ANALYST", "VIEW_ONLY_ANALYST")
 
                         .requestMatchers("/api/v1/users/**").hasRole("ADMIN")
                                 .anyRequest().authenticated()
