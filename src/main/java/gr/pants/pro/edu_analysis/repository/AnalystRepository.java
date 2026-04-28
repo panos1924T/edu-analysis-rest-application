@@ -31,22 +31,22 @@ public interface AnalystRepository extends JpaRepository<Analyst, Long>,
 
     @Query(value = """
         SELECT
-            r.name AS periochi,
-            t.firstname AS onoma,
-            t.lastname AS eponymo,
-            pi.identity_number AS identity_number,
-            CASE WHEN t.deleted = 1 THEN 'ΔΙΕΓΡΑΜΜΕΝΟΣ' ELSE 'ΕΝΕΡΓΟΣ' END AS katastasi,
+            f.name AS firm,
+            a.firstname,
+            a.lastname,
+            pi.identity_number AS idNumber,
+            CASE WHEN a.deleted = true THEN 'DELETED' ELSE 'ACTIVE' END AS status,
             CASE 
-                WHEN t.created_at > '2025-01-01' THEN 'ΝΕΟΣ'
-                WHEN t.created_at > '2023-01-01' THEN 'ΜΕΣΑΙΟΣ'
-                WHEN t.created_at > '2020-01-01' THEN 'ΕΜΠΕΙΡΟΣ'
-                ELSE 'ΠΑΛΙΟΣ'
-            END AS empeiria
-        FROM analysts t
-        JOIN personal_information pi ON t.personal_info_id = pi.id
-        JOIN firms r ON t.region_id = r.id
-        WHERE t.deleted = 0
-        ORDER BY t.deleted DESC, r.name
+                WHEN a.created_at > '2025-01-01' THEN 'NEW'
+                WHEN a.created_at > '2023-01-01' THEN 'INTERMEDIATE'
+                WHEN a.created_at > '2020-01-01' THEN 'EXPERIENCED'
+                ELSE 'VETERAN'
+            END AS experience
+        FROM analysts a
+        JOIN personal_information pi ON a.personal_info_id = pi.id
+        JOIN firms f ON a.firm_id = f.id
+        WHERE a.deleted = false
+        ORDER BY a.deleted DESC, f.name
         """, nativeQuery = true)
     List<AnalystStatusReportView> findAllAnalystsReport();
 }
