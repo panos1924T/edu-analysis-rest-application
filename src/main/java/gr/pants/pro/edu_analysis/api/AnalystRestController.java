@@ -220,6 +220,26 @@ public class AnalystRestController {
         return ResponseEntity.ok(analystReadOnlyDTO);
     }
 
+    @Operation(summary = "Soft deletes an analyst by uuid")
+    @SecurityRequirement(name = "Bearer Authentication")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200", description = "Analyst deleted",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = AnalystReadOnlyDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "404", description = "Analyst not found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "401", description = "Not Authenticated",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "403", description = "Access Denied",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponseDTO.class))
+            )
+    })
     @DeleteMapping("/{uuid}")
     public ResponseEntity<AnalystReadOnlyDTO> deleteAnalyst(
             @PathVariable UUID uuid)
