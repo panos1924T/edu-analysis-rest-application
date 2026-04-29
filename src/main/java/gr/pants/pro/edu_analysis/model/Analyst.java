@@ -23,7 +23,7 @@ public class Analyst extends AbstractEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, columnDefinition = "UUID")
     private UUID uuid;
 
     @Column(nullable = false)
