@@ -6,26 +6,26 @@ import jakarta.validation.constraints.Size;
 
 public record AnalystInsertDTO(
 
-        @NotNull
-        @Size(min = 2)
+        @NotNull(message = "{NotNull.analystInsertDTO.firstname}")
+        @Size(min = 2, message = "{Size.analystInsertDTO.firstname}")
         String firstname,
 
-        @NotNull
-        @Size(min = 2)
+        @NotNull(message = "{NotNull.analystInsertDTO.lastname}")
+        @Size(min = 2, message = "{Size.analystInsertDTO.lastname}")
         String lastname,
 
-        @NotNull
+        @NotNull(message = "{NotNull.analystInsertDTO.email}")
         String email,
 
-        @NotNull
+        @NotNull(message = "{NotNull.analystInsertDTO.firmId}")
         Long firmId,
 
         @Valid
-        @NotNull
+        @NotNull(message = "{NotNull.analystInsertDTO.userInsertDTO}")
         UserInsertDTO userInsertDTO,
 
         @Valid
-        @NotNull
+        @NotNull(message = "{NotNull.analystInsertDTO.personalInfoInsertDTO}")
         PersonalInfoInsertDTO personalInfoInsertDTO
 
 ) {

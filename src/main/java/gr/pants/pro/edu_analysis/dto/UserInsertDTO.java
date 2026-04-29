@@ -7,15 +7,15 @@ import jakarta.validation.constraints.Size;
 
 public record UserInsertDTO(
 
-        @NotNull
-        @Size(min = 3, max = 20)
+        @NotNull(message = "{NotNull.userInsertDTO.username}")
+        @Size(min = 3, max = 20, message = "{Size.userInsertDTO.username}")
         String username,
 
-        @NotNull
-        @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])^.{8,}$")
+        @NotNull(message = "{NotNull.userInsertDTO.password}")
+        @Pattern(regexp = "(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&+=])^.{8,}$", message = "{Pattern.userInsertDTO.password}")
         String password,
 
-        @NotNull
+        @NotNull(message = "{NotNull.userInsertDTO.roleId}")
         Long roleId
 ) {
 }

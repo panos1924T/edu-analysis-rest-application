@@ -4,13 +4,13 @@ import jakarta.validation.constraints.NotBlank;
 
 public record PersonalInfoUpdateDTO(
 
-        @NotBlank
+        @NotBlank(message = "{NotBlank.personalInfoUpdateDTO.identityNumber}")
         String identityNumber,
 
-        @NotBlank
+        @NotBlank(message = "{NotBlank.personalInfoUpdateDTO.placeOfBirth}")
         String placeOfBirth,
 
-        @NotBlank
+        @NotBlank(message = "{NotBlank.personalInfoUpdateDTO.municipalityOfRegistration}")
         String municipalityOfRegistration
 ) {
 }

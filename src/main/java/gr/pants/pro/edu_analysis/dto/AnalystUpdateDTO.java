@@ -8,29 +8,29 @@ import java.util.UUID;
 
 public record AnalystUpdateDTO(
 
-        @NotNull
+        @NotNull(message = "{NotNull.analystUpdateDTO.uuid}")
         UUID uuid,
 
-        @NotNull
-        @Size(min = 2)
+        @NotNull(message = "{NotNull.analystUpdateDTO.firstname}")
+        @Size(min = 2, message = "{Size.analystUpdateDTO.firstname}")
         String firstname,
 
-        @NotNull
-        @Size(min = 2)
+        @NotNull(message = "{NotNull.analystUpdateDTO.lastname}")
+        @Size(min = 2, message = "{Size.analystUpdateDTO.lastname}")
         String lastname,
 
-        @NotNull
+        @NotNull(message = "{NotNull.analystUpdateDTO.email}")
         String email,
 
-        @NotNull
+        @NotNull(message = "{NotNull.analystUpdateDTO.firmId}")
         Long firmId,
 
         @Valid
-        @NotNull
+        @NotNull(message = "{NotNull.analystUpdateDTO.userUpdateDTO}")
         UserUpdateDTO userUpdateDTO,
 
         @Valid
-        @NotNull
+        @NotNull(message = "{NotNull.analystUpdateDTO.personalInfoUpdateDTO}")
         PersonalInfoUpdateDTO personalInfoUpdateDTO
 ) {
 }
